@@ -6,8 +6,9 @@
   "author": "binyao hao <hao_binyao@berkeley.edu>",
   "license": "MIT",
   "scripts": {
-    "dev" : "node_modules/.bin/webpack-dev-server",
-    "dist": "node_modules/.bin/webpack -p"
+    "dev": "node_modules/.bin/webpack-dev-server",
+    "dist": "node_modules/.bin/webpack -p",
+    "dist_win"  : "set WEBPACK_ENV=online&& node_modules/.bin/webpack -p"
   },
   "devDependencies": {
     "babel-core": "6.26.0",
@@ -28,6 +29,7 @@
   "dependencies": {
     "font-awesome": "^4.7.0",
     "react": "16.2.0",
-    "react-dom": "16.2.0"
+    "react-dom": "16.2.0",
+    "react-router-dom": "4.2.2"
   }
 }

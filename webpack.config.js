@@ -3,84 +3,109 @@ const webpack           = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
+let WEBPACK_ENV = process.env.WEBPACK_ENV || 'dev';
+console.log(WEBPACK_ENV); 
 module.exports = {
-  entry: './src/app.jsx',
-  output: {
-    path: path.resolve(__dirname, 'dist'),
-    publicPath: '/dist/',
-    filename: 'js/app.js',
-  },
-  module: {
-    rules: [
-      // react(jsx) file
-      {
-        test: /\.jsx$/,
-        exclude: /(node_modules)/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: ['env', 'react']
-          }
+    entry: './src/app.jsx',
+    output: {
+        path: path.resolve(__dirname, 'dist'),
+        publicPath: WEBPACK_ENV === 'dev' 
+            ? '/dist/' : '//s.jianliwu.com/admin-v2-fe/dist/',
+        filename: 'js/app.js'
+    },
+    resolve: {
+        alias : {
+            page        : path.resolve(__dirname, 'src/page'),
+            component   : path.resolve(__dirname, 'src/component'),
+            util        : path.resolve(__dirname, 'src/util'),
+            service     : path.resolve(__dirname, 'src/service')
         }
-      },
-      // css file
-      {
-        test: /\.css$/i,
-        use: ExtractTextPlugin.extract({
-          fallback: "style-loader",
-          use: "css-loader",
-        })
-      },
-      // sass file
-      {
-        test: /\.scss$/i,
-        use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
-          use: ['css-loader', 'sass-loader'],
-        })
-      },
-      // image file
-        {
-          test: /\.(png|jpg|gif)$/i,
-          use: [
+    },
+    module: {
+        rules: [
+            // react(jsx)语法的处理
             {
-              loader: 'url-loader',
-              options: {
-                limit: 8192,
-                name: 'resource/[name].[ext]'
-              },
+                test: /\.jsx$/,
+                exclude: /(node_modules)/,
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        presets: ['env', 'react']
+                    }
+                }
             },
-          ],
-        },
-        // font icon file
-        {
-          test: /\.(eot|svg|ttf|woff|woff2|otf)$/i,
-          use: [
+            // css文件的处理
             {
-              loader: 'url-loader',
-              options: {
-                limit: 8192,
-                name: 'resource/[name].[ext]'
-              },
+                test: /\.css$/,
+                use: ExtractTextPlugin.extract({
+                    fallback: "style-loader",
+                    use: "css-loader"
+                })
             },
-          ],
-        },
-    ]
-  },
-  plugins: [
-    // html file
-      new HtmlWebpackPlugin({
-          template: './src/index.html'
-      }),
-      // css file
-      new ExtractTextPlugin("css/[name].css"),
-      // public modules
-      new webpack.optimize.CommonsChunkPlugin({
-        name: 'common', 
-        filename: 'js/base.js'
-      })
+            // sass文件的处理
+            {
+                test: /\.scss$/,
+                use: ExtractTextPlugin.extract({
+                    fallback: 'style-loader',
+                    use: ['css-loader', 'sass-loader']
+                })
+            },
+            // 图片的配置
+            {
+                test: /\.(png|jpg|gif)$/,
+                use: [
+                    {
+                        loader: 'url-loader',
+                        options: {
+                            limit: 8192,
+                            name: 'resource/[name].[ext]'
+                        }
+                    }
+                ]
+            },
+            // 字体图标的配置
+            {
+                test: /\.(eot|svg|ttf|woff|woff2|otf)$/,
+                use: [
+                    {
+                        loader: 'url-loader',
+                        options: {
+                            limit: 8192,
+                            name: 'resource/[name].[ext]'
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    plugins: [
+        // 处理html文件 
+        new HtmlWebpackPlugin({
+            template: './src/index.html',
+            favicon: './favicon.ico'
+        }),
+        // 独立css文件
+        new ExtractTextPlugin("css/[name].css"),
+        // 提出公共模块
+        new webpack.optimize.CommonsChunkPlugin({
+            name : 'common',
+            filename: 'js/base.js'
+        })
     ],
     devServer: {
-      port:8086
-    },
+        port: 8086,
+        historyApiFallback: {
+            index: '/dist/index.html'
+        },
+        proxy : {
+            '/manage' : {
+                target: 'http://admintest.happymmall.com',
+                changeOrigin : true
+            },
+            '/user/logout.do' : {
+                target: 'http://admintest.happymmall.com',
+                changeOrigin : true
+            }
+        }
+    }
 };
